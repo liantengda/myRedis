@@ -11,7 +11,10 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
+import java.time.Duration;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -23,13 +26,13 @@ import java.util.concurrent.TimeUnit;
 @Component
 @Slf4j
 public class RedisUtil {
+
     @Autowired
     private RedisTemplate redisTemplate;
 
     @Autowired
     private RedisTemplate<String,String> redisTemplateString;
 
-    public static RedisTemplate redistemplate;
     /**  默认过期时长，单位：秒 */
     public final static long DEFAULT_EXPIRE = 60 * 60 * 24;
     /**  不设置过期时长 */
@@ -42,70 +45,119 @@ public class RedisUtil {
     public static final String PREFIX_ENTITY_MORE_LIKE = "like_entity";
     public static final String PREFIX_USER_LIKE = "like:user";
 
-    @PostConstruct
-    public void init() {
-        redistemplate = redisTemplate;
+
+
+    public Object getObject(String key){
+        return redisTemplate.opsForValue().get(key);
     }
-
-
-    public void setString(String key, Object value, long expire){
-        ValueOperations<String, String> valueOperations = redisTemplateString.opsForValue();
-        valueOperations.set(key, toJson(value));
-        if(expire != NOT_EXPIRE){
-            redisTemplateString.expire(key, expire, TimeUnit.SECONDS);
-        }
-    }
-
-    public void setString(String key,Object value) {
-        setString(key, value, DEFAULT_EXPIRE);
-    }
-
 
     public void setObject(String key, Object value){
         redisTemplate.opsForValue().set(key,value,DEFAULT_EXPIRE);
     }
 
+    /**
+     * 插入字符串数据结构键值对
+     * @param key
+     * @param value
+     * @param expire
+     * @param timeUnit
+     */
+    public void setString(String key, Object value, long expire,TimeUnit timeUnit){
+         redisTemplateString.opsForValue().set(key,toJson(value));
+        if(expire != NOT_EXPIRE){
+            redisTemplateString.expire(key, expire, timeUnit);
+        }
+    }
 
+    /**
+     * 根据key获取字符串值
+     * @param key
+     * @return
+     */
+    public String getString(String key){
+        String s = redisTemplateString.opsForValue().get(key);
+        return s;
+    }
+
+    /**
+     * 根据key删除字符串
+     * @param key
+     * @return
+     */
+    public boolean delString(String key) {
+        Boolean delete = redisTemplateString.delete(key);
+        return delete;
+    }
+
+    /**
+     * 根据key，value和offset覆写已存在的记录
+     * @param key
+     * @param value
+     * @param offset
+     */
+    public void overwriteString(String key,String value,int offset){
+        String overWriteResult = null;
+        if(offset!=-1){
+            redisTemplateString.opsForValue().set(key,value,offset);
+        }else {
+            redisTemplateString.opsForValue().set(key,value);
+        }
+    }
+
+    /**
+     * 根据部分键，模糊查询键值集合
+     * @param partKey
+     * @return
+     */
+    public Map<String,String> getStringListByPartOfKey(String partKey) {
+        HashMap<String, String> stringMap = new HashMap<>();
+        Set<String> keys = redisTemplateString.keys(partKey);
+        for (String key:keys) {
+            String string = getString(key);
+            stringMap.put(key,string);
+        }
+        return stringMap;
+    }
+
+    /**
+     * 根据键，对值进行加法运算--整型的
+     * @param key
+     * @return
+     */
+    public Long incrementIntStringByKey(String key, Long summand){
+        Long increment = redisTemplateString.opsForValue().increment(key, summand);
+        return increment;
+    }
+
+    /**
+     * 根据键，对值进行加法运算--浮点型的
+     * @param key
+     * @param summand
+     * @return
+     */
+    public Double incrementDoubleStringByKey(String key,Double summand){
+        Double increment = redisTemplateString.opsForValue().increment(key, summand);
+        return increment;
+    }
 
     public <T> T get(String key, Class<T> clazz, long expire) {
-        ValueOperations<String, String> valueOperations = redistemplate.opsForValue();
-        String value = valueOperations.get(key);
+         String value = (String) redisTemplate.opsForValue().get(key);
         if(expire != NOT_EXPIRE){
-            redistemplate.expire(key, expire, TimeUnit.SECONDS);
+            redisTemplate.expire(key, expire, TimeUnit.SECONDS);
         }
-        return value == null ? null : fromJson(value, clazz);
+        return value == null ? null : ObjectConvertUtil.fromJson(value, clazz);
     }
 
     public <T> T get(String key, Class<T> clazz) {
         return get(key, clazz, NOT_EXPIRE);
     }
 
-    public String get(String key, long expire) {
-        ValueOperations<String, String> valueOperations = redistemplate.opsForValue();
-        String value = valueOperations.get(key);
-        if(expire != NOT_EXPIRE){
-            redistemplate.expire(key, expire, TimeUnit.SECONDS);
-        }
+    public String get(String key) {
+        String  value = (String) redisTemplate.opsForValue().get(key);
         return value;
     }
 
-    public String getString(String key) {
-        return get(key, NOT_EXPIRE);
-    }
 
-    public Object getObject(String key){
-        return redisTemplate.opsForValue().get(key);
-    }
-
-    public void delete(String key) {
-
-        redistemplate.delete(key);
-    }
-
-    public void expire(String key) {
-
-        expire(key, DEFAULT_EXPIRE * 3);
-    }
 
     public void thirtyDays(String key){
         expire(key,DEFAULT_EXPIRE * 30);
@@ -113,9 +165,9 @@ public class RedisUtil {
 
     public void expire(String key, long expire) {
         if(expire != NOT_EXPIRE){
-            redistemplate.expire(key, expire, TimeUnit.SECONDS);
+            redisTemplate.expire(key, expire, TimeUnit.SECONDS);
         }else {
-            redistemplate.expire(key, DEFAULT_EXPIRE * 3,TimeUnit.SECONDS);
+            redisTemplate.expire(key, DEFAULT_EXPIRE * 3,TimeUnit.SECONDS);
         }
     }
 
@@ -135,25 +187,13 @@ public class RedisUtil {
         return JSON.toJSONString(object);
     }
 
-    /**
-     * JSON数据，转成Object
-     */
-    private <T> T fromJson(String json, Class<T> clazz){
-        return JSON.parseObject(json, clazz);
-    }
 
-    public ZSetOperations<String, String> getzSetOperations() {
-        return redistemplate.opsForZSet();
-    }
 
-    public ListOperations<String, String> getListOperations() {
-        return redistemplate.opsForList();
-    }
 
     public boolean setNx(String key, String value, long expire) {
-        boolean res = redistemplate.getConnectionFactory().getConnection().setNX(key.getBytes(), value.getBytes());
+        boolean res = redisTemplate.getConnectionFactory().getConnection().setNX(key.getBytes(), value.getBytes());
         if(res){
-            redistemplate.expire(key, expire, TimeUnit.SECONDS);
+            redisTemplate.expire(key, expire, TimeUnit.SECONDS);
         }
         return res;
     }
@@ -165,10 +205,10 @@ public class RedisUtil {
      * @auth xiawenjun
      * @return
      */
-    public static Long incr(String key, long delta){
-        ValueOperations<String, String> operations = redistemplate.opsForValue();
-        redistemplate.setKeySerializer(new StringRedisSerializer());
-        redistemplate.setValueSerializer(new StringRedisSerializer());
+    public  Long increment(String key, long delta){
+        ValueOperations<String, String> operations = redisTemplate.opsForValue();
+        redisTemplate.setKeySerializer(new StringRedisSerializer());
+        redisTemplate.setValueSerializer(new StringRedisSerializer());
         return operations.increment(key, delta);
     }
 

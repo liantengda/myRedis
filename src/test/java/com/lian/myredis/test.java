@@ -5,6 +5,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.util.concurrent.TimeUnit;
+
 /**
  * @author Ted
  * @version 1.0
@@ -25,7 +27,7 @@ public class test {
 
     @Test
     public void setString() {
-        redisUtil.setString("my_string_key",3);
+        redisUtil.setString("my_string_key",3,30,TimeUnit.SECONDS);
         String my_string_key = redisUtil.getString("my_string_key");
         System.out.println(my_string_key);
     }
