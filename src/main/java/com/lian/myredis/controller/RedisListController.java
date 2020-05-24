@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author Ted
@@ -52,27 +51,46 @@ public class RedisListController {
         return new R<>(list);
     }
 
-    @RequestMapping(value = "/incrementInt",method = RequestMethod.PUT)
-    public R<Map<String,Long>> getIncrementMapLong(String key,Long summand){
-        return new R<>();
+    @RequestMapping(value = "/element",method = RequestMethod.PUT)
+    public R<List> getIncrementMapLong(String key,Long index,String value){
+        List list = redisListService.updateElementByIndex(key, index, value);
+        return new R<>(list);
     }
 
-    @RequestMapping(value = "/incrementDouble",method = RequestMethod.PUT)
-    public R<Map<String,Double>> getIncrementMapDouble(String key,Double summand){
-        Map<String, Double> stringDoubleMap = redisListService.incrementDoubleValueByKey(key, summand);
-        return new R<>(stringDoubleMap);
+    @RequestMapping(value = "/index",method = RequestMethod.GET)
+    public R<Object> getElementByIndex(String key,Long index){
+        Object elementByIndex = redisListService.getElementByIndex(key, index);
+        return new R<>(elementByIndex);
     }
 
-    @RequestMapping(value = "/appendString",method = RequestMethod.PUT)
-    public R<Map<String,String>> appendStringMap(String key,String value){
-        Map<String, String> stringMap = redisListService.appendStringKeyValue(key, value);
-        return new R<>(stringMap);
+    @RequestMapping(value = "/remove",method = RequestMethod.DELETE)
+    public R<List> removeFromList(String key,long count ,String value){
+        List list = redisListService.removeElementByCountAndValue(key, count, value);
+        return new R<>(list);
     }
 
     @RequestMapping(value = "/size",method = RequestMethod.GET)
     public R<Long> getListSize(String key){
         Long stringSize = redisListService.getListSize(key);
         return new R<>(stringSize);
+    }
+
+    @RequestMapping(value = "/leftPop",method = RequestMethod.GET)
+    public R<Object> leftPop(String key){
+        Object o = redisListService.leftPop(key);
+        return new R<>(o);
+    }
+
+    @RequestMapping(value = "/rightPop",method = RequestMethod.GET)
+    public R<Object> rightPop(String key){
+        Object o = redisListService.rightPop(key);
+        return new R<>(o);
+    }
+
+    @RequestMapping(value = "/delete",method = RequestMethod.DELETE)
+    public R<Boolean> delete(String key){
+        boolean b = redisListService.delList(key);
+        return new R<>(b);
     }
 
 }

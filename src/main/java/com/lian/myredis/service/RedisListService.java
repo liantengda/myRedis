@@ -28,7 +28,7 @@ public interface RedisListService {
      * 根据key删除一个键值对
      * @param key
      */
-    boolean delStringKeyValue(String key);
+    boolean delList(String key);
 
     /**
      * 右侧push一条数据进入list
@@ -46,18 +46,18 @@ public interface RedisListService {
     List getListContentByKey(String key);
 
     /**
-     * 根据key对值进行加法运算,一定要注意，值一定要是整数。
+     * 右侧添加元素数组到list
      * @param key
      * @return
      */
     List rightPushAll(String key, String...values);
 
     /**
-     * 根据key对值进行加法运算，一定要注意，值一定要是double类型
+     * 通过元素下标更新list某下标元素
      * @param key
      * @return
      */
-    Map<String,Double> incrementDoubleValueByKey(String key, Double summand);
+    List updateElementByIndex(String key, long index,String value);
 
     /**
      * 如果key中的值已经存在，则将value追加到旧值后边，如果键不存在，那么
@@ -65,7 +65,7 @@ public interface RedisListService {
      * @param value
      * @return
      */
-    Map<String,String> appendStringKeyValue(String key, String value);
+    List removeElementByCountAndValue(String key,long count, String value);
 
     /**
      * 根据key获取list的元素数量
@@ -73,5 +73,27 @@ public interface RedisListService {
      * @return
      */
     Long getListSize(String key);
+
+    /**
+     * 根据下标获取list中指定元素的值
+     * @param key
+     * @param index
+     * @return
+     */
+    Object getElementByIndex(String key,long index);
+
+    /**
+     * 从左测弹出一个值，弹出后不复存在
+     * @param key
+     * @return
+     */
+    Object leftPop(String key);
+
+    /**
+     * 从右侧弹出一个值，弹出后不复存在
+     * @param key
+     * @return
+     */
+    Object rightPop(String key);
 
 }

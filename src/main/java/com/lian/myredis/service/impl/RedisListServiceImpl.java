@@ -61,19 +61,17 @@ public class RedisListServiceImpl implements RedisListService {
     }
 
     @Override
-    public Map<String, Double> incrementDoubleValueByKey(String key, Double summand) {
-        HashMap<String, Double> incrementMap = new HashMap<>();
-        Double aDouble = redisUtil.incrementDoubleStringByKey(key, summand);
-        incrementMap.put(key,aDouble);
-        return incrementMap;
+    public List updateElementByIndex(String key, long index,String value) {
+        redisUtil.setElementByIndex(key,index,value);
+        List listContentByKey = redisUtil.getListContentByKey(key);
+        return listContentByKey;
     }
 
     @Override
-    public Map<String, String> appendStringKeyValue(String key, String value) {
-        HashMap<String, String> stringHashMap = new HashMap<>();
-        redisUtil.appendStringByKey(key,value);
-        stringHashMap.put(key, redisUtil.getString(key));
-        return stringHashMap;
+    public List removeElementByCountAndValue(String key,long count,String value) {
+        Long aLong = redisUtil.removeFromList(key, count, value);
+        List listContentByKey = redisUtil.getListContentByKey(key);
+        return listContentByKey;
     }
 
     @Override
@@ -83,7 +81,25 @@ public class RedisListServiceImpl implements RedisListService {
     }
 
     @Override
-    public boolean delStringKeyValue(String key) {
-        return redisUtil.delString(key);
+    public boolean delList(String key) {
+        return redisUtil.deleteObject(key);
+    }
+
+    @Override
+    public Object getElementByIndex(String key, long index) {
+        Object elementByIndex = redisUtil.getElementByIndex(key, index);
+        return elementByIndex;
+    }
+
+    @Override
+    public Object leftPop(String key) {
+        Object o = redisUtil.leftPopFromList(key);
+        return o;
+    }
+
+    @Override
+    public Object rightPop(String key) {
+        Object o = redisUtil.rightPopFromList(key);
+        return o;
     }
 }
