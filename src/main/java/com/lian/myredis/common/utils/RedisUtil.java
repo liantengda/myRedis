@@ -7,8 +7,6 @@ import org.springframework.data.redis.core.*;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
-import java.time.Duration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -49,7 +47,7 @@ public class RedisUtil {
     }
 
     public void setObject(String key, Object value){
-        redisTemplate.opsForValue().set(key,value,DEFAULT_EXPIRE);
+        redisTemplate.opsForValue().set(key,value);
     }
 
     /*----------------------------------------------String------------------------------------------*/

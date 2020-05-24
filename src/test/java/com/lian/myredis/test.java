@@ -4,6 +4,7 @@ import com.lian.myredis.common.utils.RedisUtil;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.redis.core.RedisTemplate;
 
 import java.util.concurrent.TimeUnit;
 
@@ -17,22 +18,24 @@ public class test {
 
     @Autowired
     private RedisUtil redisUtil;
+    @Autowired
+    private RedisTemplate redisTemplate;
+    @Autowired
+    private RedisTemplate<String,String> redisStringTemplate;
 
     @Test
     public void setObject() {
-         redisUtil.setObject("my_second_key",2);
-        Object my_second_key = redisUtil.getObject("my_second_key");
+         redisTemplate.opsForValue().set("my_second_key","hehe");
+        Object my_second_key = redisTemplate.opsForValue().get("my_second_key");
         System.out.println(my_second_key);
     }
 
     @Test
     public void setString() {
-        redisUtil.setString("my_string_key",3,30,TimeUnit.SECONDS);
-        String my_string_key = redisUtil.getString("my_string_key");
+        redisStringTemplate.opsForValue().set("my_string_key","hahahah");
+        String my_string_key = redisStringTemplate.opsForValue().get("my_string_key");
         System.out.println(my_string_key);
     }
 
-    public void setRedisUtil(RedisUtil redisUtil) {
 
-    }
 }
