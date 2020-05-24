@@ -150,13 +150,72 @@ public class RedisUtil {
     }
 
     /**
-     * 获取键值字节长度
+     * 获取String数据结构 -- 键值字节长度
      * @param key
      * @return
      */
     public Long getStringSize(String key){
         Long size = redisTemplateString.opsForValue().size(key);
         return size;
+    }
+
+
+    /**
+     * 根据key获取列表长度
+     * @param key
+     * @return
+     */
+    public Long getListSize(String key){
+        Long size = redisTemplate.opsForList().size(key);
+        return size;
+    }
+
+    /**
+     * 从左侧插入一个元素，如果key不存在，则新建一个list左侧插入
+     * @param key
+     * @param value
+     * @return
+     */
+    public Long leftPushToList(String key,String value){
+        Long aLong = redisTemplate.opsForList().leftPush(key, value);
+        return aLong;
+    }
+
+    /**
+     * 批量将一个数组插入到list中
+     * @param key
+     * @param values
+     * @return
+     */
+    public Long leftPushAllToList(String key,String...values){
+        Long aLong = redisTemplate.opsForList().leftPushAll(key, values);
+        return aLong ;
+    }
+
+    /**
+     * 根据key值查询整个list列表的内容
+     * @param key
+     * @return
+     */
+    public List getListContentByKey(String key){
+        List range = redisTemplate.opsForList().range(key, 0, -1);
+        return range;
+    }
+
+    /**
+     * 右侧插入数据到list
+     * @param key
+     * @param value
+     * @return
+     */
+    public Long rightPushToList(String key,String value){
+        Long aLong = redisTemplate.opsForList().rightPush(key, value);
+        return aLong;
+    }
+
+    public Long rightPushAllToList(String key,String...values){
+        Long aLong = redisTemplate.opsForList().rightPushAll(key, values);
+        return aLong;
     }
 
     public <T> T get(String key, Class<T> clazz, long expire) {
