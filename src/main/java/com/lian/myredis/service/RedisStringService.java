@@ -8,7 +8,7 @@ import java.util.Map;
  * @version 1.0
  * @date 2020/5/24 9:06
  */
-public interface RedisService {
+public interface RedisStringService {
     /**
      * 根据key获取String数据类型的key-value
      * @param key
@@ -61,4 +61,20 @@ public interface RedisService {
      * @return
      */
     Map<String,Double> incrementDoubleValueByKey(String key,Double summand);
+
+    /**
+     * 如果key中的值已经存在，则将value追加到旧值后边，如果键不存在，那么
+     * @param key
+     * @param value
+     * @return
+     */
+    Map<String,String> appendStringKeyValue(String key,String value);
+
+    /**
+     * 根据key获取value的字节长度
+     * @param key
+     * @return
+     */
+    Long getStringSize(String key);
+
 }

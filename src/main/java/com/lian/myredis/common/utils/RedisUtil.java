@@ -140,6 +140,25 @@ public class RedisUtil {
         return increment;
     }
 
+    /**
+     * 将值添加到旧值得末尾，如果值不存在，则等于set key value
+     * @param key
+     * @param value
+     */
+    public void appendStringByKey(String key,String value) {
+        redisTemplateString.opsForValue().append(key, value);
+    }
+
+    /**
+     * 获取键值字节长度
+     * @param key
+     * @return
+     */
+    public Long getStringSize(String key){
+        Long size = redisTemplateString.opsForValue().size(key);
+        return size;
+    }
+
     public <T> T get(String key, Class<T> clazz, long expire) {
          String value = (String) redisTemplate.opsForValue().get(key);
         if(expire != NOT_EXPIRE){

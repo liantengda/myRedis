@@ -1,7 +1,7 @@
 package com.lian.myredis.service.impl;
 
 import com.lian.myredis.common.utils.RedisUtil;
-import com.lian.myredis.service.RedisService;
+import com.lian.myredis.service.RedisStringService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,7 +17,7 @@ import java.util.concurrent.TimeUnit;
  */
 @Service
 @Slf4j
-public class RedisServiceImpl implements RedisService {
+public class RedisStringServiceImpl implements RedisStringService {
 
     @Autowired
     RedisUtil redisUtil;
@@ -70,5 +70,19 @@ public class RedisServiceImpl implements RedisService {
         Double aDouble = redisUtil.incrementDoubleStringByKey(key, summand);
         incrementMap.put(key,aDouble);
         return incrementMap;
+    }
+
+    @Override
+    public Map<String, String> appendStringKeyValue(String key, String value) {
+        HashMap<String, String> stringHashMap = new HashMap<>();
+        redisUtil.appendStringByKey(key,value);
+        stringHashMap.put(key, redisUtil.getString(key));
+        return stringHashMap;
+    }
+
+    @Override
+    public Long getStringSize(String key) {
+        Long stringSize = redisUtil.getStringSize(key);
+        return stringSize;
     }
 }
