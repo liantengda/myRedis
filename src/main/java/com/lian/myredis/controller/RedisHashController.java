@@ -2,7 +2,9 @@ package com.lian.myredis.controller;
 
 import com.lian.myredis.globalException.pojo.response.R;
 import com.lian.myredis.service.RedisHashService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -18,6 +20,7 @@ import java.util.Set;
  */
 @RestController
 @RequestMapping(value = "/redisHash")
+@Slf4j
 public class RedisHashController {
 
     @Autowired
@@ -30,7 +33,8 @@ public class RedisHashController {
     }
 
     @RequestMapping(value = "/hashMap",method = RequestMethod.POST)
-    public R<Map> putAllIntoHash(String key,Map map){
+    public R<Map> putAllIntoHash(String key,@RequestBody Map map){
+        log.info("map{}",map);
         Map result = redisHashService.putAllIntoHash(key, map);
         return new R<>(result);
     }
@@ -65,7 +69,7 @@ public class RedisHashController {
         return new R<>(allValuesByKey);
     }
 
-    @RequestMapping(value = "/hashSize",method = RequestMethod.GET)
+    @RequestMapping(value = "/hashKeys",method = RequestMethod.GET)
     public R<Set> getHashKeys(String key){
         Set allValuesByKey = redisHashService.getHashKeys(key);
         return new R<>(allValuesByKey);
