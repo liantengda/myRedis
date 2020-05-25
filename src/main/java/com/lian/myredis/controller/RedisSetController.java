@@ -40,7 +40,7 @@ public class RedisSetController {
         return new R<>(set);
     }
 
-    @RequestMapping(value = "/listSet",method = RequestMethod.GET)
+    @RequestMapping(value = "/set",method = RequestMethod.GET)
     public R<Set> listSet(String key){
         Set set = redisSetService.getAllElementsFromSet(key);
         return new R<>(set);
