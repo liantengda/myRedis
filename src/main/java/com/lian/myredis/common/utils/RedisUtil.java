@@ -486,7 +486,7 @@ public class RedisUtil {
      * @param score
      * @return
      */
-    public Boolean addElementToZSet(String key,String value,double score){
+    public Boolean addElementToZSet(String key,Object value,double score){
         Boolean add = redisTemplate.opsForZSet().add(key, value, score);
         return add;
     }
@@ -531,7 +531,7 @@ public class RedisUtil {
      * @param end
      * @return
      */
-    public Set getElementsInRange(String key,long start,long end){
+    public Set getElementsFromZSetInRangeOfIndex(String key, long start, long end){
         Set range = redisTemplate.opsForZSet().range(key, start, end);
         return range;
     }
@@ -543,7 +543,7 @@ public class RedisUtil {
      * @param max
      * @return
      */
-    public Set getElementCountInRange(String key,double min,double max){
+    public Set getElementFromZSetInRangeOfScore(String key, double min, double max){
         Set set = redisTemplate.opsForZSet().rangeByScore(key, min, max);
         return set;
     }
@@ -553,7 +553,7 @@ public class RedisUtil {
      * @param key
      * @return
      */
-    public Long getElementCount(String key){
+    public Long getElementCountFromZSet(String key){
         Long size = redisTemplate.opsForZSet().size(key);
         return size;
     }
@@ -587,7 +587,7 @@ public class RedisUtil {
      * @param neededCount
      * @return
      */
-    public List iteratorZSet(String key,long neededCount){
+    public List getNeededCountFromZSet(String key,long neededCount){
         ArrayList<Object> arrayList = new ArrayList<>();
         Cursor<ZSetOperations.TypedTuple<Object>> scan = redisTemplate.opsForZSet().scan(key, ScanOptions.NONE);
         while (scan.hasNext()&&neededCount>0){
@@ -597,6 +597,17 @@ public class RedisUtil {
         }
         return arrayList;
     }
+
+    /**
+     * 获取zSet集合中所有元素
+     * @param key
+     * @return
+     */
+    public Set  getAllElementsFromZSet(String key){
+        Set all = redisTemplate.opsForZSet().range(key, 0, -1);
+        return all;
+    }
+
 
     public <T> T get(String key, Class<T> clazz, long expire) {
          String value = (String) redisTemplate.opsForValue().get(key);
