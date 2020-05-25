@@ -7,10 +7,8 @@ import org.springframework.data.redis.core.*;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.stereotype.Component;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.lang.reflect.Array;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -50,7 +48,7 @@ public class RedisUtil {
         redisTemplate.opsForValue().set(key,value);
     }
 
-    /*----------------------------------------------String------------------------------------------*/
+    /*----------------------------------------------String------------------------------------------------------------*/
     /**
      * 插入字符串数据结构键值对
      * @param key
@@ -155,7 +153,7 @@ public class RedisUtil {
         return size;
     }
 
-    /*--------------------------------------list---------------------------------------*/
+    /*--------------------------------------list----------------------------------------------------------------------*/
 
     /**
      * 根据key获取列表长度
@@ -285,7 +283,7 @@ public class RedisUtil {
     }
 
 
-    /*------------------------------------------hash------------------------------------------------*/
+    /*------------------------------------------hash------------------------------------------------------------------*/
 
     /**
      * 向某个散列表中插入一个值
@@ -396,7 +394,209 @@ public class RedisUtil {
         return delete;
     }
 
+    /*------------------------------------------------set数据结构------------------------------------------------------*/
 
+    /**
+     * 无序集合set中添加元素
+     * @param key
+     * @param values
+     * @return
+     */
+    public Long addElementToSet(String key,Object...values){
+        Long add = redisTemplate.opsForSet().add(key, values);
+        return add;
+    }
+
+    /**
+     * 移除set集合中一个或者多个元素
+     * @param key
+     * @param values
+     * @return
+     */
+    public Long removeFromSet(String key,Object...values){
+        Long remove = redisTemplate.opsForSet().remove(key, values);
+        return remove;
+    }
+
+    /**
+     * 移除并返回集合中的一个随机元素
+     * @param key
+     * @return
+     */
+    public Object popFromSet(String key){
+        Object pop = redisTemplate.opsForSet().pop(key);
+        return pop;
+    }
+
+    /**
+     * 将一个元素从一个set集合移动到另一个set集合
+     * @param key
+     * @param o
+     * @param anotherKey
+     * @return
+     */
+    public Boolean moveElementFromSetToAnotherSet(String key,Object o,String anotherKey){
+        Boolean move = redisTemplate.opsForSet().move(key, o, anotherKey);
+        return move;
+    }
+
+    /**
+     * 获取无序集合set的元素数量
+     * @param key
+     * @return
+     */
+    public Long getSetSize(String key){
+        Long size = redisTemplate.opsForSet().size(key);
+        return size;
+    }
+
+    /**
+     * 获取set集合中所有元素
+     * @param key
+     * @return
+     */
+    public Set getAllElementFromSet(String key){
+        Set members = redisTemplate.opsForSet().members(key);
+        return members;
+    }
+
+    /**
+     * 从set集合中获取指定数量的元素
+     * @param key
+     * @param neededCount
+     * @return
+     */
+    public Set getNeededCountFromSet(String key,Long neededCount){
+        Cursor<Object> scan = redisTemplate.opsForSet().scan(key, ScanOptions.NONE);
+        HashSet<Object> objects = new HashSet<>();
+        while (scan.hasNext()&&neededCount>0){
+            Object next = scan.next();
+            objects.add(next);
+            neededCount--;
+        }
+        return objects;
+    }
+
+    /*------------------------------------------------------zSet集合--------------------------------------------------*/
+
+    /**
+     * 向zSet集合中添加一个元素，如果存在则返回false，不存在则返回true
+     * @param key
+     * @param value
+     * @param score
+     * @return
+     */
+    public Boolean addElementToZSet(String key,String value,double score){
+        Boolean add = redisTemplate.opsForZSet().add(key, value, score);
+        return add;
+    }
+
+    /**
+     * 向zSet中新增一个有序集合
+     * @param key
+     * @param tuples
+     * @return
+     */
+    public Long addElementSetToZSet(String key, Set<ZSetOperations.TypedTuple<Object>> tuples){
+        Long add = redisTemplate.opsForZSet().add(key, tuples);
+        return add;
+    }
+
+    /**
+     * 从有序集合zSet中移除一个或多个元素
+     * @param key
+     * @param values
+     * @return
+     */
+    public Long removeFromZSet(String key,Object...values){
+        Long remove = redisTemplate.opsForZSet().remove(key, values);
+        return remove;
+    }
+
+    /**
+     * 返回有序集合中指定成员的排名
+     * @param key
+     * @param o
+     * @return
+     */
+    public Long getRankZSet(String key,Object o){
+        Long rank = redisTemplate.opsForZSet().rank(key, o);
+        return rank;
+    }
+
+    /**
+     * 返回有序集合中指定区间内的成员
+     * @param key
+     * @param start
+     * @param end
+     * @return
+     */
+    public Set getElementsInRange(String key,long start,long end){
+        Set range = redisTemplate.opsForZSet().range(key, start, end);
+        return range;
+    }
+
+    /**
+     * 返回指定区间成员
+     * @param key
+     * @param min
+     * @param max
+     * @return
+     */
+    public Set getElementCountInRange(String key,double min,double max){
+        Set set = redisTemplate.opsForZSet().rangeByScore(key, min, max);
+        return set;
+    }
+
+    /**
+     * 返回有序集合的成员个数
+     * @param key
+     * @return
+     */
+    public Long getElementCount(String key){
+        Long size = redisTemplate.opsForZSet().size(key);
+        return size;
+    }
+
+    /**
+     * 获取只当成员的score
+     * @param key
+     * @param o
+     * @return
+     */
+    public Double getSpecificScoreFromZSet(String key,Object o){
+        Double score = redisTemplate.opsForZSet().score(key, o);
+        return score;
+    }
+
+    /**
+     * 移除指定索引位置的成员
+     * @param key
+     * @param start
+     * @param end
+     * @return
+     */
+    public Long removeFromZSetInRange(String key,long start,long end){
+        Long aLong = redisTemplate.opsForZSet().removeRange(key, start, end);
+        return aLong;
+    }
+
+    /**
+     * 遍历zSet集合
+     * @param key
+     * @param neededCount
+     * @return
+     */
+    public List iteratorZSet(String key,long neededCount){
+        ArrayList<Object> arrayList = new ArrayList<>();
+        Cursor<ZSetOperations.TypedTuple<Object>> scan = redisTemplate.opsForZSet().scan(key, ScanOptions.NONE);
+        while (scan.hasNext()&&neededCount>0){
+            ZSetOperations.TypedTuple<Object> next = scan.next();
+            arrayList.add(next);
+            neededCount--;
+        }
+        return arrayList;
+    }
 
     public <T> T get(String key, Class<T> clazz, long expire) {
          String value = (String) redisTemplate.opsForValue().get(key);
