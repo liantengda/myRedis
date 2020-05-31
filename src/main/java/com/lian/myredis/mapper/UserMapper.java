@@ -47,7 +47,17 @@ public class UserMapper {
         return remove;
     }
 
+    /**
+     * 此处模拟高并发情境下从数据库中查询数据，睡眠2s
+     * @param id
+     * @return
+     */
     public  User findOneByUserId(Integer id){
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         User user = userTable.get(id);
         return user;
     }

@@ -21,17 +21,19 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    @RequestMapping(value = "/{id}",method = RequestMethod.GET)
-    public R<User> GetUser(@PathVariable("id") Integer id){
-        return new R<>(userService.sel(id));
+    @RequestMapping(value = "/nullObject/{id}",method = RequestMethod.GET)
+    public R<User> getUserIfNotStoreNullObject(@PathVariable("id") Integer id){
+        return new R<>(userService.findUserIfNotStoreBlank(id));
+    }
+
+    @RequestMapping(value = "/bloomFilter/{id}",method = RequestMethod.GET)
+    public R<User> getUserIfStoreBloomFilter(@PathVariable("id") Integer id){
+        User userStoreBloomFilter = userService.findUserStoreBloomFilter(id);
+        return new R<>(userStoreBloomFilter);
     }
 
     @RequestMapping(value = "/list",method = RequestMethod.GET)
     public R<List<User>> list(){
-
-        String s = null;
-        s.toString();
-
         return new R<>(userService.list());
     }
 
