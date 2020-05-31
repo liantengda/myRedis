@@ -25,6 +25,8 @@ public interface UserService {
     */
    User findUserStoreBloomFilter(int id);
 
+   String findStarHomePage(String starName);
+
    /**
     * 获取用户信息列表
     * @return

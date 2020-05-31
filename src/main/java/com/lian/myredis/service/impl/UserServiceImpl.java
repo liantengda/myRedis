@@ -72,6 +72,30 @@ public class UserServiceImpl  implements UserService {
     }
 
     @Override
+    public String findStarHomePage(String starName) {
+        redisTemplate.setKeySerializer(StringRedisSerializer.UTF_8);
+        String  homePage = (String) redisTemplate.opsForValue().get(RedisKeyConstant.STAR_HOMEPAGE + starName);
+        if(homePage==null){
+            try{
+                synchronized (this){
+                     homePage = (String)redisTemplate.opsForValue().get(RedisKeyConstant.STAR_HOMEPAGE + starName);
+                    if(homePage!=null){
+                        return homePage;
+                    }
+                    homePage = userMapper.getStarHomePageByStarName(starName);
+                    redisTemplate.opsForValue().set(RedisKeyConstant.STAR_HOMEPAGE+starName,homePage,60,TimeUnit.SECONDS);
+                }
+            }catch (Exception e){
+                e.printStackTrace();
+            }finally {
+
+            }
+
+        }
+        return homePage;
+    }
+
+    @Override
     public List<User> list() {
         List<User> userList = userMapper.findUserList();
         return userList;

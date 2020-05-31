@@ -74,6 +74,10 @@ public class UserMapper {
         return existCollect;
     }
 
+    public String getStarHomePageByStarName(String starName) throws InterruptedException {
+        Thread.sleep(2000);
+        return starName+"的主页";
+    }
 
     public static void main(String[] args) {
 

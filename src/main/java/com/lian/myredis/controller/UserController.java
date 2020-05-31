@@ -32,6 +32,12 @@ public class UserController {
         return new R<>(userStoreBloomFilter);
     }
 
+    @RequestMapping(value = "/star/homePage",method = RequestMethod.GET)
+    public R<String> getStarHomePage(String starName){
+        String starHomePage = userService.findStarHomePage(starName);
+        return new R<>(starHomePage);
+    }
+
     @RequestMapping(value = "/list",method = RequestMethod.GET)
     public R<List<User>> list(){
         return new R<>(userService.list());

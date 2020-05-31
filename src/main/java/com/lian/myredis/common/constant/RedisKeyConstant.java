@@ -8,4 +8,6 @@ package com.lian.myredis.common.constant;
 public class RedisKeyConstant {
 
     public static final String MY_USER = "my_user_";
+
+    public static final String STAR_HOMEPAGE = "star_homePage_";
 }
